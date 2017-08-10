@@ -22,7 +22,8 @@ class jsonFile:
 
 if __name__ == '__main__':
 	data = jsonFile("BCtax2017.json").load()
-	print(data['provinceBC']['brk1'][1])
+	print(data['province'].keys())
+	print(data['province']['brk1'][1])
 
 
 	provBC={
@@ -49,5 +50,5 @@ if __name__ == '__main__':
 	"cppExempt" : 3500
 	}
 
-	# data = {"provinceBC":provBC,"federal":federal,"employeeInsurance":ei, "cpp":cpp}
+	# data = {"province":provBC,"federal":federal,"employeeInsurance":ei, "cpp":cpp}
 	# jsonFile("/home/ats/Documents/Develop/Standalone/SalaryCalc/BCtax2017.json").save(data)

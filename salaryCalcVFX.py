@@ -4,6 +4,7 @@ import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QDialogButtonBox, QApplication, QComboBox, QDialog, QFrame, QLabel, QSpinBox, QGridLayout
 from taxCalculator import SimpleTax
+from jsonParser import jsonFile
 
 class Form(QDialog):
 	def __init__ (self, parent=None):
@@ -81,24 +82,30 @@ class Form(QDialog):
 		self.updateUi()
 
 	def updateUi(self):
-		_translate = QtCore.QCoreApplication.translate
-		sbox = self.sender()
+		_translate = QtCore.QCoreApplication.translate #copied from QT Designer
+		sbox = self.sender() #Check which spinbox requested update
 
-		if sbox is self.hourlyRate:
+		if sbox is self.hourlyRate: 
+			#if hourly rate spinbox requested update
 			hr = self.hourlyRate.value()
 			ann = hr*2080
 			self.annualRate.setValue(ann)
 
 		elif sbox is self.annualRate:
+			#if annual rate spinbox requested update
 			ann = self.annualRate.value()
 			hr = ann/2080
 			self.hourlyRate.setValue(hr)
 		else:
+			#if update came from UI inicialization
 			hr = self.hourlyRate.value()
 			ann = hr*2080
 
+		taxfile = jsonFile("BCtax2017.json")
+		taxdata = taxfile.load()
+
 		salaryFreq = str(self.sFreq.currentText())
-		calcTax = SimpleTax(ann)
+		calcTax = SimpleTax(ann, taxdata)
 
 		self.totalTaxOut.setText(_translate("Dialog", "Total tax : $ {0:,.1f}/y".format(calcTax.taxDue())))
 		self.netPayOut.setText(_translate("Dialog", "Net Pay : $ {:,.1f}/y".format(calcTax.afterTax())))
