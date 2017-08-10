@@ -49,7 +49,11 @@ class SimpleTax:
 		return bracketTaxDue
 
 	def afterTax(self):
-		after = self.annual - self.canadaPensionPlan(self.maxcppContrib, self.cppExempt) - self.emplymentInsurance(self.maxei) - self.bracketTax(self.prov_PersonalAmount, self.prov_brk1, self.prov_brk2, self.prov_brk3, self.prov_brk4, self.prov_brk5) - self.bracketTax(self.federal_PersonalAmount, self.federal_brk1, self.federal_brk2, self.federal_brk3, self.federal_brk4, self.federal_brk5)
+		after = self.annual \
+		- self.canadaPensionPlan(self.maxcppContrib, self.cppExempt) \
+		- self.emplymentInsurance(self.maxei) \
+		- self.bracketTax(self.prov_PersonalAmount, self.prov_brk1, self.prov_brk2, self.prov_brk3, self.prov_brk4, self.prov_brk5) \
+		- self.bracketTax(self.federal_PersonalAmount, self.federal_brk1, self.federal_brk2, self.federal_brk3, self.federal_brk4, self.federal_brk5)
 		return after
 
 	def taxDue(self):
@@ -59,5 +63,11 @@ class SimpleTax:
 ###################################
 #  TESTS
 if __name__ == '__main__':
+	from jsonParser import jsonFile
+
+	taxfile = jsonFile("BCtax2017.json")
+	taxdata = taxfile.load()
+
 	ann = 180000
-	print(SimpleTax(ann).afterTax())
+	testCalc = SimpleTax(ann, taxdata).afterTax() 
+	print(testCalc)

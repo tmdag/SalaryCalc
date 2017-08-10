@@ -83,32 +83,36 @@ class Form(QDialog):
 
 	def updateUi(self):
 		_translate = QtCore.QCoreApplication.translate #copied from QT Designer
-		sbox = self.sender() #Check which spinbox requested update
+		sbox = self.sender() # Check which spinbox requested update
 
 		if sbox is self.hourlyRate: 
-			#if hourly rate spinbox requested update
+			# if hourly rate spinbox requested update
 			hr = self.hourlyRate.value()
 			ann = hr*2080
 			self.annualRate.setValue(ann)
 
 		elif sbox is self.annualRate:
-			#if annual rate spinbox requested update
+			# if annual rate spinbox requested update
 			ann = self.annualRate.value()
 			hr = ann/2080
 			self.hourlyRate.setValue(hr)
 		else:
-			#if update came from UI inicialization
+			# if update came from UI inicialization OR sFreq (weekly/biweekly)
 			hr = self.hourlyRate.value()
 			ann = hr*2080
 
+		# read json with data from specific Province/year
 		taxfile = jsonFile("BCtax2017.json")
 		taxdata = taxfile.load()
-
-		salaryFreq = str(self.sFreq.currentText())
+		# pass tax data to SimpleTax module
 		calcTax = SimpleTax(ann, taxdata)
 
 		self.totalTaxOut.setText(_translate("Dialog", "Total tax : $ {0:,.1f}/y".format(calcTax.taxDue())))
 		self.netPayOut.setText(_translate("Dialog", "Net Pay : $ {:,.1f}/y".format(calcTax.afterTax())))
+
+		# check desired frequency
+		salaryFreq = str(self.sFreq.currentText())
+
 		if(salaryFreq=="Net weekly"):
 			self.salaryOut.setText(_translate("Dialog", "CAD$ {:,.1f}".format(calcTax.afterTax()/52)))
 		else:
