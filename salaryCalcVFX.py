@@ -98,14 +98,14 @@ class Form(QDialog):
 			ann = hr*2080
 
 		salaryFreq = str(self.sFreq.currentText())
-		calcTax = SimpleTax()
+		calcTax = SimpleTax(ann)
 
-		self.totalTaxOut.setText(_translate("Dialog", "Total tax : $ {0:,.1f}/y".format(calcTax.taxDue(ann))))
-		self.netPayOut.setText(_translate("Dialog", "Net Pay : $ {:,.1f}/y".format(calcTax.afterTax(ann))))
+		self.totalTaxOut.setText(_translate("Dialog", "Total tax : $ {0:,.1f}/y".format(calcTax.taxDue())))
+		self.netPayOut.setText(_translate("Dialog", "Net Pay : $ {:,.1f}/y".format(calcTax.afterTax())))
 		if(salaryFreq=="Net weekly"):
-			self.salaryOut.setText(_translate("Dialog", "CAD$ {:,.1f}".format(calcTax.afterTax(ann)/52)))
+			self.salaryOut.setText(_translate("Dialog", "CAD$ {:,.1f}".format(calcTax.afterTax()/52)))
 		else:
-			self.salaryOut.setText(_translate("Dialog", "CAD$ {:,.1f}".format(calcTax.afterTax(ann)/26)))
+			self.salaryOut.setText(_translate("Dialog", "CAD$ {:,.1f}".format(calcTax.afterTax()/26)))
 
 		if hr<=30:
 			comment = "runner salary"
