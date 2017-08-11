@@ -1,8 +1,7 @@
 #!/usr/bin/python3
-
 import sys
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QDialogButtonBox, QApplication, QComboBox, QDialog, QFrame, QLabel, QSpinBox, QGridLayout
+from PyQt5.QtWidgets import QDialogButtonBox, QApplication, QComboBox, QDialog, QFrame, QLabel, QDoubleSpinBox, QGridLayout
 from taxCalculator import SimpleTax
 from jsonParser import jsonFile
 
@@ -10,6 +9,7 @@ class Form(QDialog):
 	def __init__ (self, parent=None):
 		super().__init__(parent)
 		self.gridLayout = QGridLayout()
+
 		self.hourlyLabel = QLabel(" per hour")
 		hourlyLabelFont = self.hourlyLabel.font()
 		hourlyLabelFont.setPointSize(8)
@@ -22,18 +22,21 @@ class Form(QDialog):
 		self.annualLabel.setFont(annualLabelFont)
 
 		self.gridLayout.addWidget(self.annualLabel, 0, 1, 1, 1)
-		self.hourlyRate = QSpinBox()
+		self.hourlyRate = QDoubleSpinBox()
 		self.hourlyRate.setRange(15, 500)
 		self.hourlyRate.setValue(55)
 		self.hourlyRate.setPrefix("CAD$ ")
 		self.hourlyRate.setSuffix("/h")
+
 		self.gridLayout.addWidget(self.hourlyRate, 1, 0, 1, 1)
-		self.annualRate = QSpinBox()
+		self.annualRate = QDoubleSpinBox()
 		self.annualRate.setRange(40000, 500000)
 		self.annualRate.setValue(114400)
+
 		self.annualRate.setProperty("showGroupSeparator", True)
 		self.annualRate.setPrefix("CAD$ ")
 		self.annualRate.setSuffix("/y")
+
 		self.gridLayout.addWidget(self.annualRate, 1, 1, 1, 1)
 		self.totalTaxOut = QLabel("totalTaxOut")
 		self.totalTaxOut.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
@@ -52,19 +55,18 @@ class Form(QDialog):
 		self.line = QFrame()
 		self.line.setFrameShape(QFrame.HLine)
 		self.line.setFrameShadow(QFrame.Sunken)
+
 		self.gridLayout.addWidget(self.line, 4, 0, 1, 2)
 		self.sFreq = QComboBox()
 		self.sFreq.addItems(["Net bi-weekly", "Net weekly"])
+
 		self.gridLayout.addWidget(self.sFreq, 5, 0, 1, 1)
 		self.salaryOut = QLabel()
 		self.salaryOut.setFrameShape(QFrame.Panel)
 		self.salaryOut.setFrameShadow(QFrame.Sunken)
 		self.salaryOut.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+
 		self.gridLayout.addWidget(self.salaryOut, 5, 1, 1, 1)
-		# self.buttonBox = QDialogButtonBox()
-		# self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-		# self.buttonBox.setStandardButtons(QDialogButtonBox.Close)#|QDialogButtonBox.Ok)
-		# self.gridLayout.addWidget(self.buttonBox, 6, 0, 1, 2)
 		self.commentary = QLabel("")
 		self.commentary.setFrameShape(QFrame.StyledPanel)
 		self.commentary.setFrameShadow(QFrame.Sunken)
@@ -73,6 +75,7 @@ class Form(QDialog):
 		cfont = self.commentary.font()
 		cfont.setPointSize(8)
 		self.commentary.setFont(cfont)
+
 		self.gridLayout.addWidget(self.commentary, 6, 0, 1, 2)
 		self.setLayout(self.gridLayout)
 		self.hourlyRate.valueChanged.connect(self.updateUi)

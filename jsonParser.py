@@ -21,11 +21,12 @@ class jsonFile:
 			print("Error saving json file: {}".format(e))
 
 if __name__ == '__main__':
+	# Load and test data
 	data = jsonFile("BCtax2017.json").load()
 	print(data['province'].keys())
 	print(data['province']['brk1'][1])
 
-
+	# DATA --------------------------------------
 	provBC={
 	"brk1" : [0, 38898, 5.06],
 	"brk2" : [38898, 77797, 7.70],
@@ -50,5 +51,6 @@ if __name__ == '__main__':
 	"cppExempt" : 3500
 	}
 
+	
 	# data = {"province":provBC,"federal":federal,"employeeInsurance":ei, "cpp":cpp}
 	# jsonFile("/home/ats/Documents/Develop/Standalone/SalaryCalc/BCtax2017.json").save(data)
