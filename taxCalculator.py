@@ -1,24 +1,24 @@
 
 class SimpleTax:
-	def __init__(self, annual, taxdata):
+	def __init__(self, annual, taxda):
 		self.annual = annual
-		self.prov_brk1 = taxdata['province']['brk1']
-		self.prov_brk2 = taxdata['province']['brk2']
-		self.prov_brk3 = taxdata['province']['brk3']
-		self.prov_brk4 = taxdata['province']['brk4']
-		self.prov_brk5 = taxdata['province']['brk5']
-		self.prov_PersonalAmount = taxdata['province']['PersonalAmount']
+		self.prov_brk1 = taxda['province']['brk1']
+		self.prov_brk2 = taxda['province']['brk2']
+		self.prov_brk3 = taxda['province']['brk3']
+		self.prov_brk4 = taxda['province']['brk4']
+		self.prov_brk5 = taxda['province']['brk5']
+		self.prov_PersonalAmount = taxda['province']['PersonalAmount']
 
-		self.federal_brk1 = taxdata['federal']['brk1']
-		self.federal_brk2 = taxdata['federal']['brk2']
-		self.federal_brk3 = taxdata['federal']['brk3']
-		self.federal_brk4 = taxdata['federal']['brk4']
-		self.federal_brk5 = taxdata['federal']['brk5']
-		self.federal_PersonalAmount = taxdata['federal']['PersonalAmount']
+		self.federal_brk1 = taxda['federal']['brk1']
+		self.federal_brk2 = taxda['federal']['brk2']
+		self.federal_brk3 = taxda['federal']['brk3']
+		self.federal_brk4 = taxda['federal']['brk4']
+		self.federal_brk5 = taxda['federal']['brk5']
+		self.federal_PersonalAmount = taxda['federal']['PersonalAmount']
 
-		self.maxei = taxdata['employeeInsurance']['maxei']
-		self.maxcppContrib = taxdata['cpp']['maxcppContrib']
-		self.cppExempt = taxdata['cpp']['cppExempt']
+		self.maxei = taxda['employeeInsurance']['maxei']
+		self.maxcppContrib = taxda['cpp']['maxcppContrib']
+		self.cppExempt = taxda['cpp']['cppExempt']
 
 	def clamp(self, x, cmin, cmax):
 		clamped = 0 if x < cmin else max(cmin, min(x, cmax))
@@ -68,6 +68,6 @@ if __name__ == '__main__':
 	taxfile = jsonFile("BCtax2017.json")
 	taxdata = taxfile.load()
 
-	ann = 180000
+	ann = 81.0096*2080
 	testCalc = SimpleTax(ann, taxdata).afterTax() 
-	print(testCalc)
+	print(testCalc/26)
