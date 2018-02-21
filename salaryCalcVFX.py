@@ -12,7 +12,7 @@ class Form(QMainWindow):
         # super().__init__(parent) # Python => 3.0 method
         super(Form, self).__init__(parent) # Python  < 3.0 method
 
-        self.taxfile = jsonFile("BCtax2017.json")
+        self.taxfile = jsonFile("data/BCtax2018.json")
         sshFile="darkorange.stylesheet"
         with open(sshFile,"r") as fh:
             self.setStyleSheet(fh.read())
@@ -21,7 +21,7 @@ class Form(QMainWindow):
 
     def initUI(self):               
         
-        exitAct = QAction(QIcon('exit.png'), '&Exit', self)        
+        exitAct = QAction(QIcon('images/exit.png'), '&Exit', self)        
         exitAct.setShortcut('Ctrl+Q')
         exitAct.setStatusTip('Exit application')
         exitAct.triggered.connect(qApp.quit)
@@ -34,7 +34,7 @@ class Form(QMainWindow):
         fileMenu.addAction(exitAct)
         taxMenu = menubar.addMenu('&Year')
 
-        taxFiles = [file for file in glob("BCtax*.json")]
+        taxFiles = [file.strip("data/") for file in glob("data/BCtax*.json")]
         taxMenuEntry = {}
         for x, element in enumerate(taxFiles):
             key = 'Q'+str(x)
@@ -164,7 +164,7 @@ class Form(QMainWindow):
         # read json with data from specific Province/year
 
         if(senderNode != None and senderNode.objectName() == "taxYearChange"):
-            self.taxfile = jsonFile("{}.json".format(taxyear))
+            self.taxfile = jsonFile("data/{}.json".format(taxyear))
             self.setWindowTitle("VFX Salary Conversion {}".format(taxyear.strip("BCtax")))
 
         taxdata = self.taxfile.load()
