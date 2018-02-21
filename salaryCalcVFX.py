@@ -2,8 +2,8 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QDialogButtonBox, QApplication, QComboBox, QMainWindow, QFrame, QLabel, QDoubleSpinBox, QGridLayout, QWidget, QAction, qApp
 from PyQt5.QtGui import QIcon
-from taxCalculator import SimpleTax
-from jsonParser import jsonFile
+from modules.taxCalculator import SimpleTax
+from modules.jsonParser import jsonFile
 import pyqtgraph as pg
 from glob import glob
 
@@ -13,7 +13,7 @@ class Form(QMainWindow):
         super(Form, self).__init__(parent) # Python  < 3.0 method
 
         self.taxfile = jsonFile("data/BCtax2018.json")
-        sshFile="darkorange.stylesheet"
+        sshFile="modules/darkorange.stylesheet"
         with open(sshFile,"r") as fh:
             self.setStyleSheet(fh.read())
 
