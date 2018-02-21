@@ -50,7 +50,3 @@ if __name__ == '__main__':
 	"maxcppContrib" : [55300, 4.95],
 	"cppExempt" : 3500
 	}
-
-	
-	# data = {"province":provBC,"federal":federal,"employeeInsurance":ei, "cpp":cpp}
-	# jsonFile("/home/ats/Documents/Develop/Standalone/SalaryCalc/BCtax2017.json").save(data)

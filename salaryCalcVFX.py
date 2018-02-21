@@ -1,28 +1,55 @@
 #!/usr/bin/python
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QDialogButtonBox, QApplication, QComboBox, QDialog, QFrame, QLabel, QDoubleSpinBox, QGridLayout
+from PyQt5.QtWidgets import QDialogButtonBox, QApplication, QComboBox, QMainWindow, QFrame, QLabel, QDoubleSpinBox, QGridLayout, QWidget, QAction, qApp
+from PyQt5.QtGui import QIcon
 from taxCalculator import SimpleTax
 from jsonParser import jsonFile
 import pyqtgraph as pg
+from glob import glob
 
-
-class Form(QDialog):
+class Form(QMainWindow):
     def __init__ (self, parent=None):
         # super().__init__(parent) # Python => 3.0 method
         super(Form, self).__init__(parent) # Python  < 3.0 method
 
-        # self.central_widget = QWidget()
-        # self.setCentralWidget(self.central_widget)
+        self.taxfile = jsonFile("BCtax2017.json")
+        sshFile="darkorange.stylesheet"
+        with open(sshFile,"r") as fh:
+            self.setStyleSheet(fh.read())
 
-        self.gridLayout = QGridLayout()
+        self.initUI()
 
-        # self.menubar = QMenuBar()
-        # self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 28))
-        # self.menubar.setObjectName("menubar")
-        # self.menuFile = QMenu(self.menubar)
-        # self.menuFile.setObjectName("menuFile")
-        # self.central_widget .setMenuBar(self.menubar)
+    def initUI(self):               
+        
+        exitAct = QAction(QIcon('exit.png'), '&Exit', self)        
+        exitAct.setShortcut('Ctrl+Q')
+        exitAct.setStatusTip('Exit application')
+        exitAct.triggered.connect(qApp.quit)
 
+        self.statusBar()
+
+        # ----------  Top Nenu ------------
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(exitAct)
+        taxMenu = menubar.addMenu('&Year')
+
+        taxFiles = [file for file in glob("BCtax*.json")]
+        taxMenuEntry = {}
+        for x, element in enumerate(taxFiles):
+            key = 'Q'+str(x)
+
+            taxMenuEntry[key] = QAction(element.strip(".json"), self)
+            taxMenuEntry[key].setObjectName('taxYearChange')
+            taxMenu.addAction(taxMenuEntry[key])
+            taxMenuEntry[key].triggered.connect(lambda checked, key=key : self.updateUi(taxMenuEntry[key].text()))
+
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        self.gridLayout = QGridLayout(self.central_widget)
+
+        # ----------  Main Gui ------------
 
         self.hourlyLabel = QLabel(" per hour")
         hourlyLabelFont = self.hourlyLabel.font()
@@ -46,6 +73,7 @@ class Form(QDialog):
         self.annualRateBox = QDoubleSpinBox()
         self.annualRateBox.setRange(4000, 500000)
         self.annualRateBox.setValue(114400)
+        self.annualRateBox.setSingleStep(10000)
 
         self.annualRateBox.setProperty("showGroupSeparator", True)
         self.annualRateBox.setPrefix("CAD$ ")
@@ -98,20 +126,16 @@ class Form(QDialog):
         self.gridLayout.addWidget(self.plotgraph, 6, 0, 1, 2)
 
         self.gridLayout.addWidget(self.commentary, 7, 0, 1, 2)
-        # self.gridLayout.addWidget(self.commentary, 6, 0, 1, 2)
-        self.setLayout(self.gridLayout)
         self.hourlyRateBox.valueChanged.connect(self.updateUi)
         self.annualRateBox.valueChanged.connect(self.updateUi)
         self.sFreq.currentIndexChanged.connect(self.updateUi)
-        self.setWindowTitle("VFX Salary Conversion")
-        self.updateUi()
+        self.setWindowTitle("VFX Salary Conversion 2018")
+        self.updateUi("BCtax2018")
 
-        # self.central_widget.setLayout(self.gridLayout)
-
-    def updateUi(self):
+    def updateUi(self, taxyear):
         _translate = QtCore.QCoreApplication.translate #copied from QT Designer
         senderNode = self.sender() # Check which spinbox requested update
-
+            
         # check desired frequency (weekly or biweekly)
         salaryFreqBox = str(self.sFreq.currentText())
 
@@ -136,9 +160,14 @@ class Form(QDialog):
             hr = self.hourlyRateBox.value()
             ann = hr*2080.0
 
+
         # read json with data from specific Province/year
-        taxfile = jsonFile("BCtax2017.json")
-        taxdata = taxfile.load()
+
+        if(senderNode != None and senderNode.objectName() == "taxYearChange"):
+            self.taxfile = jsonFile("{}.json".format(taxyear))
+            self.setWindowTitle("VFX Salary Conversion {}".format(taxyear.strip("BCtax")))
+
+        taxdata = self.taxfile.load()
         # pass tax data to SimpleTax module
         calcTax = SimpleTax(ann, taxdata)
         salaryFrequency = calcTax.afterTax()/self.weeks
@@ -157,7 +186,7 @@ class Form(QDialog):
         self.plotgraph.clear()
         plotXrange = 500
         plotYrange = 10
-        self.plotgraph.addLegend()
+        # self.plotgraph.addLegend()
         self.plotgraph.setXRange((salaryFrequency)-plotXrange, (salaryFrequency)+plotXrange, padding=0)
         self.plotgraph.setYRange(hr-plotYrange, hr+plotYrange, padding=0)
         self.plotgraph.plot(y=dph, x=npb, pen='#2196F3',clear=True, name='bi-weekly net pay')
