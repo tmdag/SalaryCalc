@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QDialogButtonBox, QApplication, QComboBox, QMainWind
 from PyQt5.QtGui import QIcon
 from modules.taxCalculator import SimpleTax
 from modules.jsonParser import jsonFile
+from modules.taxEditor import Editor
 import pyqtgraph as pg
 from glob import glob
 
@@ -19,12 +20,21 @@ class Form(QMainWindow):
 
         self.initUI()
 
+    def showEditor(self):
+        self.edit_win = Editor(self)
+        self.edit_win.show()
+
     def initUI(self):               
         
         exitAct = QAction(QIcon('images/exit.png'), '&Exit', self)        
         exitAct.setShortcut('Ctrl+Q')
         exitAct.setStatusTip('Exit application')
         exitAct.triggered.connect(qApp.quit)
+
+        editAct = QAction(QIcon('images/exit.png'), '&Edit', self)        
+        editAct.setShortcut('Ctrl+E')
+        editAct.setStatusTip('Edit Tax Rates')
+        editAct.triggered.connect(self.showEditor)
 
         self.statusBar()
 
@@ -43,7 +53,7 @@ class Form(QMainWindow):
             taxMenuEntry[key].setObjectName('taxYearChange')
             taxMenu.addAction(taxMenuEntry[key])
             taxMenuEntry[key].triggered.connect(lambda checked, key=key : self.updateUi(taxMenuEntry[key].text()))
-
+        taxMenu.addAction(editAct)
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
