@@ -2,9 +2,9 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QDialogButtonBox, QApplication, QComboBox, QMainWindow, QFrame, QLabel, QDoubleSpinBox, QGridLayout, QWidget, QAction, qApp
 from PyQt5.QtGui import QIcon
-from modules.taxCalculator import SimpleTax
-from modules.jsonParser import jsonFile
-from modules.taxEditor import Editor
+from modules import SimpleTax
+from modules import jsonFile
+from taxEditor import Editor
 import pyqtgraph as pg
 from glob import glob
 
@@ -13,19 +13,24 @@ class Form(QMainWindow):
         # super().__init__(parent) # Python => 3.0 method
         super(Form, self).__init__(parent) # Python  < 3.0 method
 
-        self.taxfile = jsonFile("data/BCtax2018.json")
+        self.taxyear = "BCtax2018"
         sshFile="modules/darkorange.stylesheet"
         with open(sshFile,"r") as fh:
             self.setStyleSheet(fh.read())
 
         self.initUI()
 
-    def showEditor(self):
-        self.edit_win = Editor(self)
+    def showEditor(self,taxyear=None):
+        self.edit_win = Editor(taxyear)
         self.edit_win.show()
+        # pass
 
-    def initUI(self):               
-        
+    def updateTax(self, taxyear):
+        self.taxyear = taxyear
+        self.setWindowTitle("VFX Salary Conversion {}".format(taxyear))
+        self.updateUi(taxyear)
+
+    def initUI(self):
         exitAct = QAction(QIcon('images/exit.png'), '&Exit', self)        
         exitAct.setShortcut('Ctrl+Q')
         exitAct.setStatusTip('Exit application')
@@ -34,7 +39,7 @@ class Form(QMainWindow):
         editAct = QAction(QIcon('images/exit.png'), '&Edit', self)        
         editAct.setShortcut('Ctrl+E')
         editAct.setStatusTip('Edit Tax Rates')
-        editAct.triggered.connect(self.showEditor)
+        editAct.triggered.connect(lambda: self.showEditor(self.taxyear))
 
         self.statusBar()
 
@@ -44,7 +49,7 @@ class Form(QMainWindow):
         fileMenu.addAction(exitAct)
         taxMenu = menubar.addMenu('&Year')
 
-        taxFiles = [file.strip("data/") for file in glob("data/BCtax*.json")]
+        taxFiles = [file.strip("data/") for file in glob("data/*tax*.json")]
         taxMenuEntry = {}
         for x, element in enumerate(taxFiles):
             key = 'Q'+str(x)
@@ -52,7 +57,7 @@ class Form(QMainWindow):
             taxMenuEntry[key] = QAction(element.strip(".json"), self)
             taxMenuEntry[key].setObjectName('taxYearChange')
             taxMenu.addAction(taxMenuEntry[key])
-            taxMenuEntry[key].triggered.connect(lambda checked, key=key : self.updateUi(taxMenuEntry[key].text()))
+            taxMenuEntry[key].triggered.connect(lambda checked, key=key : self.updateTax(taxMenuEntry[key].text()))
         taxMenu.addAction(editAct)
 
         self.central_widget = QWidget()
@@ -139,7 +144,7 @@ class Form(QMainWindow):
         self.hourlyRateBox.valueChanged.connect(self.updateUi)
         self.annualRateBox.valueChanged.connect(self.updateUi)
         self.sFreq.currentIndexChanged.connect(self.updateUi)
-        self.setWindowTitle("VFX Salary Conversion 2018")
+        self.setWindowTitle("VFX Salary Conversion {}".format(self.taxyear))
         self.updateUi("BCtax2018")
 
     def updateUi(self, taxyear):
@@ -172,12 +177,9 @@ class Form(QMainWindow):
 
 
         # read json with data from specific Province/year
-
-        if(senderNode != None and senderNode.objectName() == "taxYearChange"):
-            self.taxfile = jsonFile("data/{}.json".format(taxyear))
-            self.setWindowTitle("VFX Salary Conversion {}".format(taxyear.strip("BCtax")))
-
+        self.taxfile = jsonFile("data/{}.json".format(taxyear))
         taxdata = self.taxfile.load()
+
         # pass tax data to SimpleTax module
         calcTax = SimpleTax(ann, taxdata)
         salaryFrequency = calcTax.afterTax()/self.weeks

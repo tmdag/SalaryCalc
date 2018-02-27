@@ -70,7 +70,7 @@ class SimpleTax:
 if __name__ == '__main__':
 	from jsonParser import jsonFile
 
-	taxfile = jsonFile("BCtax2018.json")
+	taxfile = jsonFile("../data/BCtax2018.json")
 	taxdata = taxfile.load()
 
 	ann = 81.0096*2080
