@@ -14,16 +14,23 @@ class Form(QMainWindow):
         super(Form, self).__init__(parent) # Python  < 3.0 method
 
         self.taxyear = "BCtax2018"
+
+        # load and set stylesheet look
         sshFile="modules/darkorange.stylesheet"
         with open(sshFile,"r") as fh:
             self.setStyleSheet(fh.read())
 
+        # store window dimensions so that we can open editor next to it
+        winW = self.frameGeometry().width()
+        winH = self.frameGeometry().height()
+
+        # kick off init of main window
         self.initUI()
 
     def showEditor(self,taxyear=None):
+        # when editor is called from top menu
         self.edit_win = Editor(taxyear)
         self.edit_win.show()
-        # pass
 
     def updateTax(self, taxyear):
         self.taxyear = taxyear
@@ -145,6 +152,7 @@ class Form(QMainWindow):
         self.annualRateBox.valueChanged.connect(self.updateUi)
         self.sFreq.currentIndexChanged.connect(self.updateUi)
         self.setWindowTitle("VFX Salary Conversion {}".format(self.taxyear))
+
         self.updateUi("BCtax2018")
 
     def updateUi(self, taxyear):

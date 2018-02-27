@@ -1,11 +1,21 @@
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction, QFileDialog
 from modules import jsonFile
+import os
+
+DATA_DIR = os.path.dirname(os.path.abspath(__file__)) + "/data"
 
 class Editor(QMainWindow):
     def __init__ (self, taxfile=None, parent=None):
         # super().__init__(parent) # Python => 3.0 method
         super(Editor, self).__init__(parent) # Python  < 3.0 method
+
+        # load and set stylesheet look
+        sshFile="modules/darkorange.stylesheet"
+        with open(sshFile,"r") as fh:
+            self.setStyleSheet(fh.read())
+
+        self.move(710,0)
 
         if(taxfile != None):
             self.taxyear = taxfile
@@ -15,7 +25,8 @@ class Editor(QMainWindow):
         print("this is my taxfile: {}".format(self.taxyear))
         self.initUI(self.taxyear)
 
-        #self.taxfile = taxfile;
+    def openFile(self):
+        fname = QFileDialog.getOpenFileName(self, 'Open json file', DATA_DIR ,"Image files (*.json)")
 
     def updateTax(self, taxyear):
         self.taxyear = taxyear
@@ -45,7 +56,27 @@ class Editor(QMainWindow):
         # self.splitter.setOrientation(QtCore.Qt.Horizontal)
         # self.splitter.setObjectName("splitter")
 
-
+        # --------------------- TOP MENU -------------------------
+        self.menubar = QMenuBar()
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 916, 28))
+        self.menubar.setObjectName("menubar")
+        self.menuFile = QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
+        self.setMenuBar(self.menubar)
+        self.statusbar = QStatusBar()
+        self.statusbar.setObjectName("statusbar")
+        self.setStatusBar(self.statusbar)
+        self.actionOpen = QAction()
+        self.actionOpen.setObjectName("actionOpen")
+        self.actionOpen.triggered.connect(self.openFile)
+        self.actionSave = QAction()
+        self.actionSave.setObjectName("actionSave")
+        self.actionExit = QAction()
+        self.actionExit.setObjectName("actionExit")
+        self.menuFile.addAction(self.actionOpen)
+        self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionExit)
+        self.menubar.addAction(self.menuFile.menuAction())
 
 
         # ------------- Province ----------------
@@ -374,25 +405,9 @@ class Editor(QMainWindow):
         self.cppTable.verticalHeader().setStretchLastSection(True)
         self.verticalLayout_3.addWidget(self.cppTable)
         self.setCentralWidget(self.centralwidget)
-        self.menubar = QMenuBar()
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 916, 28))
-        self.menubar.setObjectName("menubar")
-        self.menuFile = QMenu(self.menubar)
-        self.menuFile.setObjectName("menuFile")
-        self.setMenuBar(self.menubar)
-        self.statusbar = QStatusBar()
-        self.statusbar.setObjectName("statusbar")
-        self.setStatusBar(self.statusbar)
-        self.actionOpen = QAction()
-        self.actionOpen.setObjectName("actionOpen")
-        self.actionSave = QAction()
-        self.actionSave.setObjectName("actionSave")
-        self.actionExit = QAction()
-        self.actionExit.setObjectName("actionExit")
-        self.menuFile.addAction(self.actionOpen)
-        self.menuFile.addAction(self.actionSave)
-        self.menuFile.addAction(self.actionExit)
-        self.menubar.addAction(self.menuFile.menuAction())
+
+
+
 
         self.retranslateUi()
         self.tabWidget.setCurrentIndex(0)
