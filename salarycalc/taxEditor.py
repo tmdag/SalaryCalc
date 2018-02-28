@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, qApp, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction, QFileDialog
 from modules import jsonFile
 import os
 
@@ -26,7 +26,13 @@ class Editor(QMainWindow):
         self.initUI(self.taxyear)
 
     def openFile(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open json file', DATA_DIR ,"Image files (*.json)")
+        fname, _filter = QFileDialog.getOpenFileName(self, 'Open json file', DATA_DIR ,"Json file (*.json)")
+        jsonTaxFile = fname.split("/")[-1:][0]
+        self.updateTax(jsonTaxFile.split(".")[0])
+
+    def saveFile(self, data):
+        sname = QFileDialog.getSaveFileName(self, 'Save json File',DATA_DIR,"Json file (*.json)")
+        jsonFile(sname).save()
 
     def updateTax(self, taxyear):
         self.taxyear = taxyear
@@ -34,9 +40,7 @@ class Editor(QMainWindow):
         self.fillData(taxyear)
 
     def loadData(self, taxyear):
-        # if(senderNode != None and senderNode.objectName() == "taxYearChange"):
         taxdata = jsonFile("data/{}.json".format(taxyear))
-        # self.setWindowTitle("VFX Salary Conversion {}".format(taxyear.strip("BCtax")))
         return taxdata.load()
 
     def saveData(self):
@@ -71,8 +75,12 @@ class Editor(QMainWindow):
         self.actionOpen.triggered.connect(self.openFile)
         self.actionSave = QAction()
         self.actionSave.setObjectName("actionSave")
-        self.actionExit = QAction()
+        self.actionSave.triggered.connect(self.readData)
+        self.actionExit = QAction(QtGui.QIcon('images/exit.png'), '&Exit', self)
+        self.actionExit.setShortcut('Ctrl+Q')
+        self.actionExit.setStatusTip('Exit application')
         self.actionExit.setObjectName("actionExit")
+        self.actionExit.triggered.connect(qApp.quit)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionExit)
@@ -488,7 +496,16 @@ class Editor(QMainWindow):
         self.actionExit.setText(_translate("MainWindow", "Exit"))
 
     def readData(self):
-        pass
+        data = {}
+
+        data['info'] = {}
+        data['info']['year'] = self.taxYearBox.value()
+        data['info']['prov'] = self.provinceBox.currentText()
+        data['privince'] = {}
+        data['federal'] = {}
+        data['employeeInsurance'] = {}
+        data['cpp'] = {}
+
 
     def fillData(self, taxyear):
         taxdata = self.loadData(taxyear)
