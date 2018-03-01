@@ -22,7 +22,6 @@ class Editor(QMainWindow):
         else:
             self.taxyear = "BCtax2017"
 
-        print("this is my taxfile: {}".format(self.taxyear))
         self.initUI(self.taxyear)
 
     def openFile(self):
@@ -31,8 +30,8 @@ class Editor(QMainWindow):
         self.updateTax(jsonTaxFile.split(".")[0])
 
     def saveFile(self, data):
-        sname = QFileDialog.getSaveFileName(self, 'Save json File',DATA_DIR,"Json file (*.json)")
-        jsonFile(sname).save()
+        sname, _filter  = QFileDialog.getSaveFileName(self, 'Save json File',DATA_DIR,"Json file (*.json)")
+        jsonFile(sname).save(data)
 
     def updateTax(self, taxyear):
         self.taxyear = taxyear
@@ -42,9 +41,6 @@ class Editor(QMainWindow):
     def loadData(self, taxyear):
         taxdata = jsonFile("data/{}.json".format(taxyear))
         return taxdata.load()
-
-    def saveData(self):
-        pass
 
     def initUI(self, taxyear):
         self.setObjectName("MainWindow")
@@ -172,46 +168,31 @@ class Editor(QMainWindow):
         # self.provTable.setAutoFillBackground(False)
         # self.provTable.setGridStyle(QtCore.Qt.SolidLine)
         # self.provTable.setObjectName("provTable")
-        self.provTable.setColumnCount(2)
+        self.provTable.setColumnCount(3)
         self.provTable.setRowCount(5)
+
+        font = QtGui.QFont()
+        font.setPointSize(9)
+ 
         item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.provTable.setVerticalHeaderItem(0, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.provTable.setVerticalHeaderItem(1, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.provTable.setVerticalHeaderItem(2, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.provTable.setVerticalHeaderItem(3, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.provTable.setVerticalHeaderItem(4, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
         self.provTable.setHorizontalHeaderItem(0, item)
+        self.provTable.horizontalHeaderItem(0).setText("Bracket From")
+        self.provTable.horizontalHeaderItem(0).setFont(font)
+
         item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
         self.provTable.setHorizontalHeaderItem(1, item)
+        self.provTable.horizontalHeaderItem(1).setText("Bracket To")
+        self.provTable.horizontalHeaderItem(1).setFont(font)
+
+        item = QTableWidgetItem()
+        self.provTable.setHorizontalHeaderItem(2, item)
+        self.provTable.horizontalHeaderItem(2).setText("tax Rate")
+        self.provTable.horizontalHeaderItem(2).setFont(font)
+
+
         # self.provTable.horizontalHeader().setVisible(True)
         # self.provTable.horizontalHeader().setCascadingSectionResizes(False)
-        self.provTable.horizontalHeader().setDefaultSectionSize(180)
+        self.provTable.horizontalHeader().setDefaultSectionSize(110)
         self.provTable.horizontalHeader().setStretchLastSection(True)
         self.provTable.verticalHeader().setVisible(False)
         # self.provTable.verticalHeader().setStretchLastSection(False)
@@ -252,6 +233,8 @@ class Editor(QMainWindow):
         self.provPerTable.verticalHeader().setVisible(False)
         self.provPerTable.verticalHeader().setStretchLastSection(True)
         self.verticalLayout.addWidget(self.provPerTable)
+
+
         self.tabWidget.addTab(self.ProvincialTab, "")
         self.FederalTab = QWidget()
         self.FederalTab.setObjectName("FederalTab")
@@ -266,55 +249,43 @@ class Editor(QMainWindow):
         self.fedLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.fedLabel.setObjectName("fedLabel")
         self.verticalLayout_2.addWidget(self.fedLabel)
+
+        # ----------- FEDERAL TABLE -----------------
+
         self.fedTable = QTableWidget(self.FederalTab)
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.fedTable.sizePolicy().hasHeightForWidth())
-        self.fedTable.setSizePolicy(sizePolicy)
-        self.fedTable.setMinimumSize(QtCore.QSize(0, 0))
-        self.fedTable.setObjectName("fedTable")
-        self.fedTable.setColumnCount(2)
+        # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        # sizePolicy.setHorizontalStretch(0)
+        # sizePolicy.setVerticalStretch(0)
+        # sizePolicy.setHeightForWidth(self.fedTable.sizePolicy().hasHeightForWidth())
+        # self.fedTable.setSizePolicy(sizePolicy)
+        # self.fedTable.setMinimumSize(QtCore.QSize(0, 0))
+        # self.fedTable.setObjectName("fedTable")
+        self.fedTable.setColumnCount(3)
         self.fedTable.setRowCount(5)
+
+        font = QtGui.QFont()
+        font.setPointSize(9)
+
         item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.fedTable.setVerticalHeaderItem(0, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.fedTable.setVerticalHeaderItem(1, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.fedTable.setVerticalHeaderItem(2, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.fedTable.setVerticalHeaderItem(3, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
-        self.fedTable.setVerticalHeaderItem(4, item)
-        item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
         self.fedTable.setHorizontalHeaderItem(0, item)
+        self.fedTable.horizontalHeaderItem(0).setText("Bracket From")
+        self.fedTable.horizontalHeaderItem(0).setFont(font)
+
         item = QTableWidgetItem()
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # item.setFont(font)
         self.fedTable.setHorizontalHeaderItem(1, item)
-        self.fedTable.horizontalHeader().setDefaultSectionSize(180)
+        self.fedTable.horizontalHeaderItem(1).setText("Bracket To")
+        self.fedTable.horizontalHeaderItem(1).setFont(font)
+
+        item = QTableWidgetItem()
+        self.fedTable.setHorizontalHeaderItem(2, item)
+        self.fedTable.horizontalHeaderItem(2).setText("tax Rate")
+        self.fedTable.horizontalHeaderItem(2).setFont(font)
+
+        self.fedTable.horizontalHeader().setDefaultSectionSize(100)
         self.fedTable.horizontalHeader().setStretchLastSection(True)
         self.fedTable.verticalHeader().setVisible(False)
         self.verticalLayout_2.addWidget(self.fedTable)
+
         self.fedPerLabel = QLabel(self.FederalTab)
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -328,7 +299,7 @@ class Editor(QMainWindow):
 
 
 
-
+        # ----------- FEDERAL PERSONAL TABLE -----------------
 
 
         self.fedPerTable = QTableWidget(self.FederalTab)
@@ -354,6 +325,9 @@ class Editor(QMainWindow):
         self.verticalLayout_2.addWidget(self.fedPerTable)
         self.tabWidget.addTab(self.FederalTab, "")
         self.verticalLayout_3.addWidget(self.tabWidget)
+
+
+
         self.eiLabel = QLabel(self.centralwidget)
         self.eiLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.eiLabel.setObjectName("eiLabel")
@@ -371,8 +345,6 @@ class Editor(QMainWindow):
         item = QTableWidgetItem()
         self.eiTable.setVerticalHeaderItem(0, item)
         item = QTableWidgetItem()
-
-
         self.eiTable.setHorizontalHeaderItem(0, item)
         item = QTableWidgetItem()
         self.eiTable.setHorizontalHeaderItem(1, item)
@@ -429,20 +401,7 @@ class Editor(QMainWindow):
         self.provinceBox.setItemText(0, _translate("MainWindow", "BC"))
         self.taxYearLabel.setText(_translate("MainWindow", "Tax Year"))
         self.provLabel.setText(_translate("MainWindow", "Provincial Tax Rates, Personal income"))
-        item = self.provTable.verticalHeaderItem(0)
-        item.setText(_translate("MainWindow", "1"))
-        item = self.provTable.verticalHeaderItem(1)
-        item.setText(_translate("MainWindow", "2"))
-        item = self.provTable.verticalHeaderItem(2)
-        item.setText(_translate("MainWindow", "3"))
-        item = self.provTable.verticalHeaderItem(3)
-        item.setText(_translate("MainWindow", "4"))
-        item = self.provTable.verticalHeaderItem(4)
-        item.setText(_translate("MainWindow", "5"))
-        item = self.provTable.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "taxable Income"))
-        item = self.provTable.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "taxRate"))
+
         self.provPerLabel.setText(_translate("MainWindow", "Personal Amount"))
         item = self.provPerTable.verticalHeaderItem(0)
         item.setText(_translate("MainWindow", "1"))
@@ -452,20 +411,9 @@ class Editor(QMainWindow):
         item.setText(_translate("MainWindow", "tax rate"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.ProvincialTab), _translate("MainWindow", "Provincial Tax"))
         self.fedLabel.setText(_translate("MainWindow", "Federal Tax Rates"))
-        item = self.fedTable.verticalHeaderItem(0)
-        item.setText(_translate("MainWindow", "1"))
-        item = self.fedTable.verticalHeaderItem(1)
-        item.setText(_translate("MainWindow", "2"))
-        item = self.fedTable.verticalHeaderItem(2)
-        item.setText(_translate("MainWindow", "3"))
-        item = self.fedTable.verticalHeaderItem(3)
-        item.setText(_translate("MainWindow", "4"))
-        item = self.fedTable.verticalHeaderItem(4)
-        item.setText(_translate("MainWindow", "5"))
-        item = self.fedTable.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "taxable Income"))
-        item = self.fedTable.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "taxRate"))
+
+
+
         self.fedPerLabel.setText(_translate("MainWindow", "Personal Amount"))
         item = self.fedPerTable.verticalHeaderItem(0)
         item.setText(_translate("MainWindow", "1"))
@@ -505,30 +453,51 @@ class Editor(QMainWindow):
         data['federal'] = {}
         data['employeeInsurance'] = {}
         data['cpp'] = {}
+        self.saveFile(data)
 
 
     def fillData(self, taxyear):
         taxdata = self.loadData(taxyear)
 
-        self.prov_brk1 = taxdata['province']['brk1']
-        self.prov_brk2 = taxdata['province']['brk2']
-        self.prov_brk3 = taxdata['province']['brk3']
-        self.prov_brk4 = taxdata['province']['brk4']
-        self.prov_brk5 = taxdata['province']['brk5']
-        self.prov_brk6 = taxdata['province']['brk6']
+        self.prov_brk = [taxdata['province']['brk1'],
+        taxdata['province']['brk2'],
+        taxdata['province']['brk3'],
+        taxdata['province']['brk4'],
+        taxdata['province']['brk5'],
+        taxdata['province']['brk6']]
+
         self.prov_PersonalAmount = taxdata['province']['PersonalAmount']
 
-        self.federal_brk1 = taxdata['federal']['brk1']
-        self.federal_brk2 = taxdata['federal']['brk2']
-        self.federal_brk3 = taxdata['federal']['brk3']
-        self.federal_brk4 = taxdata['federal']['brk4']
-        self.federal_brk5 = taxdata['federal']['brk5']
+        self.federal_brk = [taxdata['federal']['brk1'],
+        taxdata['federal']['brk2'],
+        taxdata['federal']['brk3'],
+        taxdata['federal']['brk4'],
+        taxdata['federal']['brk5']]
+
         self.federal_PersonalAmount = taxdata['federal']['PersonalAmount']
 
         self.maxei = taxdata['employeeInsurance']['maxei']
         self.maxcppContrib = taxdata['cpp']['maxcppContrib']
         self.cppExempt = taxdata['cpp']['cppExempt']
 
+        provTableRows = self.provTable.rowCount()
+        provTableCols = self.provTable.columnCount()
+        for c in range(0, provTableCols):
+            for r in range(0, provTableRows):
+                self.provTable.setItem(r, c, QTableWidgetItem(str(self.prov_brk[r][c])))
+
+
+        self.provPerTable.setItem(0, 0, QTableWidgetItem(str(self.prov_PersonalAmount[0])))
+        self.provPerTable.setItem(0, 1, QTableWidgetItem(str(self.prov_PersonalAmount[1])))
+
+        fedTableRows = self.fedTable.rowCount()
+        fedTableCols = self.fedTable.columnCount()
+        for c in range(0, provTableCols):
+            for r in range(0, provTableRows):
+                self.fedTable.setItem(r, c, QTableWidgetItem(str(self.federal_brk[r][c])))
+
+        self.fedPerTable.setItem(0, 0, QTableWidgetItem(str(self.federal_PersonalAmount[0])))
+        self.fedPerTable.setItem(0, 1, QTableWidgetItem(str(self.federal_PersonalAmount[1])))
 
         self.eiTable.setItem(0, 0, QTableWidgetItem(str(self.maxei[0])))
         self.eiTable.setItem(0, 1, QTableWidgetItem(str(self.maxei[1])))
