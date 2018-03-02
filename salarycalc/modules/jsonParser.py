@@ -3,6 +3,8 @@ import json
 class jsonFile:
 	def __init__(self, file):
 		self.file = file
+		if(self.file==''):
+			raise Exception('no file name provided')
 
 	def load(self):
 		try:

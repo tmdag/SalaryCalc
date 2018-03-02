@@ -26,12 +26,14 @@ class Editor(QMainWindow):
 
     def openFile(self):
         fname, _filter = QFileDialog.getOpenFileName(self, 'Open json file', DATA_DIR ,"Json file (*.json)")
-        jsonTaxFile = fname.split("/")[-1:][0]
-        self.updateTax(jsonTaxFile.split(".")[0])
+        if(fname!=''):
+            jsonTaxFile = fname.split("/")[-1:][0]
+            self.updateTax(jsonTaxFile.split(".")[0])
 
     def saveFile(self, data):
         sname, _filter  = QFileDialog.getSaveFileName(self, 'Save json File',DATA_DIR,"Json file (*.json)")
-        jsonFile(sname).save(data)
+        if(sname!=''):
+            jsonFile(sname).save(data)
 
     def updateTax(self, taxyear):
         self.taxyear = taxyear
@@ -169,7 +171,7 @@ class Editor(QMainWindow):
         # self.provTable.setGridStyle(QtCore.Qt.SolidLine)
         # self.provTable.setObjectName("provTable")
         self.provTable.setColumnCount(3)
-        self.provTable.setRowCount(5)
+        self.provTable.setRowCount(6)
 
         font = QtGui.QFont()
         font.setPointSize(9)
@@ -449,62 +451,82 @@ class Editor(QMainWindow):
         data['info'] = {}
         data['info']['year'] = self.taxYearBox.value()
         data['info']['prov'] = self.provinceBox.currentText()
-        data['privince'] = {}
+
+        data['province'] = {}
+        for i in range(0,6):
+            data['province']['brk{}'.format(i+1)] = [float(self.provTable.item(i, c).text()) for c in range(3)]
+
+        data['province']['PersonalAmount'] = [float(self.provPerTable.item(0, c).text()) for c in range(2)]
+
         data['federal'] = {}
+        for i in range(0,5):
+            data['federal']['brk{}'.format(i+1)] = [float(self.fedTable.item(i, c).text()) for c in range(3)]
+
+        data['federal']['PersonalAmount'] = [float(self.fedPerTable.item(0, c).text()) for c in range(2)]
         data['employeeInsurance'] = {}
+        data['employeeInsurance']['maxei'] = [float(self.eiTable.item(0, c).text()) for c in range(2)]
+
         data['cpp'] = {}
+        data['cpp']['maxcppContrib'] = [float(self.cppTable.item(0, c).text()) for c in range(2)]
+        data['cpp']['cppExempt'] = float(self.cppTable.item(0, 2).text())
+
         self.saveFile(data)
 
 
     def fillData(self, taxyear):
         taxdata = self.loadData(taxyear)
 
-        self.prov_brk = [taxdata['province']['brk1'],
-        taxdata['province']['brk2'],
-        taxdata['province']['brk3'],
-        taxdata['province']['brk4'],
-        taxdata['province']['brk5'],
-        taxdata['province']['brk6']]
-
+        self.prov_brk = [taxdata['province']['brk{}'.format(x)] for x in range(1,7)]
         self.prov_PersonalAmount = taxdata['province']['PersonalAmount']
-
-        self.federal_brk = [taxdata['federal']['brk1'],
-        taxdata['federal']['brk2'],
-        taxdata['federal']['brk3'],
-        taxdata['federal']['brk4'],
-        taxdata['federal']['brk5']]
-
+        self.federal_brk = [taxdata['federal']['brk{}'.format(x)] for x in range(1,6)]
         self.federal_PersonalAmount = taxdata['federal']['PersonalAmount']
-
         self.maxei = taxdata['employeeInsurance']['maxei']
         self.maxcppContrib = taxdata['cpp']['maxcppContrib']
         self.cppExempt = taxdata['cpp']['cppExempt']
 
-        provTableRows = self.provTable.rowCount()
-        provTableCols = self.provTable.columnCount()
-        for c in range(0, provTableCols):
-            for r in range(0, provTableRows):
-                self.provTable.setItem(r, c, QTableWidgetItem(str(self.prov_brk[r][c])))
+        for c in range(0, self.provTable.columnCount()):
+            for r in range(0, self.provTable.rowCount()):
+                item = QTableWidgetItem()
+                item.setData(QtCore.Qt.EditRole, self.prov_brk[r][c])
+                self.provTable.setItem(r, c, item)
+
+        for i in range(0, self.provPerTable.columnCount()):
+            item = QTableWidgetItem()
+            item.setData(QtCore.Qt.EditRole, self.prov_PersonalAmount[i])
+            self.provPerTable.setItem(0, i, item)
+
+        for c in range(0, self.fedTable.columnCount()):
+            for r in range(0, self.fedTable.rowCount()):
+                item = QTableWidgetItem()
+                item.setData(QtCore.Qt.EditRole, self.federal_brk[r][c])
+                self.fedTable.setItem(r, c, item)
+
+        for i in range(0, self.fedPerTable.columnCount()):
+            item = QTableWidgetItem()
+            item.setData(QtCore.Qt.EditRole, self.federal_PersonalAmount[i])
+            self.fedPerTable.setItem(0, i, item)
+
+        for i in range(0, self.eiTable.columnCount()):
+            item = QTableWidgetItem()
+            item.setData(QtCore.Qt.EditRole, self.maxei[i])
+            self.eiTable.setItem(0, i, item)
+
+        item = QTableWidgetItem()
+        item.setData(QtCore.Qt.EditRole, self.maxcppContrib[0])
+        self.cppTable.setItem(0, 0, item)
+
+        item = QTableWidgetItem()
+        item.setData(QtCore.Qt.EditRole, self.maxcppContrib[1])
+        self.cppTable.setItem(0, 1, item)
+
+        item = QTableWidgetItem()
+        item.setData(QtCore.Qt.EditRole, self.cppExempt)
+        self.cppTable.setItem(0, 2, item)
 
 
-        self.provPerTable.setItem(0, 0, QTableWidgetItem(str(self.prov_PersonalAmount[0])))
-        self.provPerTable.setItem(0, 1, QTableWidgetItem(str(self.prov_PersonalAmount[1])))
-
-        fedTableRows = self.fedTable.rowCount()
-        fedTableCols = self.fedTable.columnCount()
-        for c in range(0, provTableCols):
-            for r in range(0, provTableRows):
-                self.fedTable.setItem(r, c, QTableWidgetItem(str(self.federal_brk[r][c])))
-
-        self.fedPerTable.setItem(0, 0, QTableWidgetItem(str(self.federal_PersonalAmount[0])))
-        self.fedPerTable.setItem(0, 1, QTableWidgetItem(str(self.federal_PersonalAmount[1])))
-
-        self.eiTable.setItem(0, 0, QTableWidgetItem(str(self.maxei[0])))
-        self.eiTable.setItem(0, 1, QTableWidgetItem(str(self.maxei[1])))
-
-        self.cppTable.setItem(0, 0, QTableWidgetItem(str(self.maxcppContrib[0])))
-        self.cppTable.setItem(0, 1, QTableWidgetItem(str(self.maxcppContrib[1])))
-        self.cppTable.setItem(0, 2, QTableWidgetItem(str(self.cppExempt)))
+        # self.cppTable.setItem(0, 0, QTableWidgetItem(str(self.maxcppContrib[0])))
+        # self.cppTable.setItem(0, 1, QTableWidgetItem(str(self.maxcppContrib[1])))
+        # self.cppTable.setItem(0, 2, QTableWidgetItem(str(self.cppExempt)))
 
 
 if __name__ == '__main__':
