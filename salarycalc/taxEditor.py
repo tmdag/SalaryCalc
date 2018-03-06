@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, qApp, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction, QFileDialog
+from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication, QWidget, QVBoxLayout, qApp, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction, QFileDialog
 from modules import jsonFile
 import os
 
@@ -13,7 +13,8 @@ class Editor(QMainWindow):
         # load and set stylesheet look
         sshFile="modules/darkorange.stylesheet"
         with open(sshFile,"r") as fh:
-            self.setStyleSheet(fh.read())
+            self.mystyle = fh.read()
+            self.setStyleSheet(self.mystyle)
 
         self.move(710,0)
 
@@ -30,7 +31,23 @@ class Editor(QMainWindow):
             jsonTaxFile = fname.split("/")[-1:][0]
             self.updateTax(jsonTaxFile.split(".")[0])
 
-    def saveFile(self, data):
+    def saveFile(self):
+        data = self.readData()
+        fname = "{}tax{}.json".format(data['info']['prov'], data['info']['year'])
+        sname = DATA_DIR + "/{}".format(fname)
+        if os.path.isfile(sname):
+            msgBox = QMessageBox() ;
+            msgBox.setStyleSheet(self.mystyle)
+            buttonReply = msgBox.question(self, 'File Exists', "Do you want overwrite {}?".format(fname), QMessageBox.Yes | QMessageBox.Cancel, QMessageBox.Cancel)
+            if buttonReply == QMessageBox.Yes:
+                jsonFile(sname).save(data)
+            if buttonReply == QMessageBox.Cancel:
+                print('Cancel')
+        else:
+            jsonFile(sname).save(data)
+
+    def saveFileAs(self):
+        data = self.readData()
         sname, _filter  = QFileDialog.getSaveFileName(self, 'Save json File',DATA_DIR,"Json file (*.json)")
         if(sname!=''):
             jsonFile(sname).save(data)
@@ -43,6 +60,47 @@ class Editor(QMainWindow):
     def loadData(self, taxyear):
         taxdata = jsonFile("data/{}.json".format(taxyear))
         return taxdata.load()
+
+    def initMenu(self):
+        self.menubar = QMenuBar()
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 916, 28))
+        self.menubar.setObjectName("menubar")
+        self.menuFile = QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
+        self.menuFile.setTitle("File")
+
+        self.setMenuBar(self.menubar)
+        self.statusbar = QStatusBar()
+        self.statusbar.setObjectName("statusbar")
+        self.setStatusBar(self.statusbar)
+
+        self.actionOpen = QAction()
+        self.actionOpen.setObjectName("actionOpen")
+        self.actionOpen.triggered.connect(self.openFile)
+        self.actionOpen.setText("Open")
+
+        self.actionSave = QAction()
+        self.actionSave.setObjectName("actionSave")
+        self.actionSave.triggered.connect(self.saveFile)
+        self.actionSave.setText("Save")
+
+        self.actionSaveAs = QAction()
+        self.actionSaveAs.setObjectName("actionSaveAs")
+        self.actionSaveAs.triggered.connect(self.saveFileAs)
+        self.actionSaveAs.setText("Save As..")
+
+        self.actionExit = QAction(QtGui.QIcon('images/exit.png'), '&Exit', self)
+        self.actionExit.setShortcut('Ctrl+Q')
+        self.actionExit.setStatusTip('Exit application')
+        self.actionExit.setObjectName("actionExit")
+        self.actionExit.triggered.connect(qApp.quit)
+        self.actionExit.setText("Exit")
+
+        self.menuFile.addAction(self.actionOpen)
+        self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionSaveAs)
+        self.menuFile.addAction(self.actionExit)
+        self.menubar.addAction(self.menuFile.menuAction())
 
     def initUI(self, taxyear):
         self.setObjectName("MainWindow")
@@ -59,31 +117,8 @@ class Editor(QMainWindow):
         # self.splitter.setObjectName("splitter")
 
         # --------------------- TOP MENU -------------------------
-        self.menubar = QMenuBar()
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 916, 28))
-        self.menubar.setObjectName("menubar")
-        self.menuFile = QMenu(self.menubar)
-        self.menuFile.setObjectName("menuFile")
-        self.setMenuBar(self.menubar)
-        self.statusbar = QStatusBar()
-        self.statusbar.setObjectName("statusbar")
-        self.setStatusBar(self.statusbar)
-        self.actionOpen = QAction()
-        self.actionOpen.setObjectName("actionOpen")
-        self.actionOpen.triggered.connect(self.openFile)
-        self.actionSave = QAction()
-        self.actionSave.setObjectName("actionSave")
-        self.actionSave.triggered.connect(self.readData)
-        self.actionExit = QAction(QtGui.QIcon('images/exit.png'), '&Exit', self)
-        self.actionExit.setShortcut('Ctrl+Q')
-        self.actionExit.setStatusTip('Exit application')
-        self.actionExit.setObjectName("actionExit")
-        self.actionExit.triggered.connect(qApp.quit)
-        self.menuFile.addAction(self.actionOpen)
-        self.menuFile.addAction(self.actionSave)
-        self.menuFile.addAction(self.actionExit)
-        self.menubar.addAction(self.menuFile.menuAction())
 
+        self.initMenu()
 
         # ------------- Province ----------------
         self.ProvinceLabel = QLabel(self.splitter)
@@ -95,6 +130,7 @@ class Editor(QMainWindow):
         # self.ProvinceLabel.setMaximumSize(QtCore.QSize(80, 30))
         # self.ProvinceLabel.setObjectName("ProvinceLabel")
         self.provinceBox = QComboBox(self.splitter)
+
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         # sizePolicy.setHorizontalStretch(0)
         # sizePolicy.setVerticalStretch(0)
@@ -102,8 +138,38 @@ class Editor(QMainWindow):
         # self.provinceBox.setSizePolicy(sizePolicy)
         # self.provinceBox.setMaximumSize(QtCore.QSize(200, 16777215))
         # self.provinceBox.setObjectName("provinceBox")
-        self.provinceBox.addItem("")
+        self.provinceBox.addItem("Alberta")
+        self.provinceBox.setItemText(0, "AB")
 
+        self.provinceBox.addItem("British Columbia")
+        self.provinceBox.setItemText(1, "BC")
+
+        self.provinceBox.addItem("Manitoba")
+        self.provinceBox.setItemText(2, "MB")
+
+        self.provinceBox.addItem("New Brunswick")
+        self.provinceBox.setItemText(3, "NB")
+
+        self.provinceBox.addItem("Newfoundland and Labrador")
+        self.provinceBox.setItemText(4, "NL")
+
+        self.provinceBox.addItem("Nova Scotia")
+        self.provinceBox.setItemText(5, "NS")
+
+        self.provinceBox.addItem("Nunavut")
+        self.provinceBox.setItemText(6, "BC")
+
+        self.provinceBox.addItem("Ontario")
+        self.provinceBox.setItemText(7, "ON")
+
+        self.provinceBox.addItem("Prince Edward Island")
+        self.provinceBox.setItemText(8, "PE")
+
+        self.provinceBox.addItem("Quebec")
+        self.provinceBox.setItemText(9, "QC")
+
+        self.provinceBox.addItem("Saskatchewan")
+        self.provinceBox.setItemText(10, "SK")
 
         self.taxYearLabel = QLabel(self.splitter)
         # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
@@ -359,6 +425,8 @@ class Editor(QMainWindow):
         self.cppLabel = QLabel(self.centralwidget)
         self.cppLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.cppLabel.setObjectName("cppLabel")
+        self.cppLabel.setText("Canada Pension Plan")
+
         self.verticalLayout_3.addWidget(self.cppLabel)
         self.cppTable = QTableWidget(self.centralwidget)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -388,8 +456,13 @@ class Editor(QMainWindow):
         self.verticalLayout_3.addWidget(self.cppTable)
         self.setCentralWidget(self.centralwidget)
 
-
-
+ 
+        item = self.cppTable.horizontalHeaderItem(0)
+        item.setText("max contrib")
+        item = self.cppTable.horizontalHeaderItem(1)
+        item.setText("tax")
+        item = self.cppTable.horizontalHeaderItem(2)
+        item.setText("excempt")
 
         self.retranslateUi()
         self.tabWidget.setCurrentIndex(0)
@@ -400,7 +473,6 @@ class Editor(QMainWindow):
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.ProvinceLabel.setText(_translate("MainWindow", "Province"))
-        self.provinceBox.setItemText(0, _translate("MainWindow", "BC"))
         self.taxYearLabel.setText(_translate("MainWindow", "Tax Year"))
         self.provLabel.setText(_translate("MainWindow", "Provincial Tax Rates, Personal income"))
 
@@ -413,8 +485,6 @@ class Editor(QMainWindow):
         item.setText(_translate("MainWindow", "tax rate"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.ProvincialTab), _translate("MainWindow", "Provincial Tax"))
         self.fedLabel.setText(_translate("MainWindow", "Federal Tax Rates"))
-
-
 
         self.fedPerLabel.setText(_translate("MainWindow", "Personal Amount"))
         item = self.fedPerTable.verticalHeaderItem(0)
@@ -431,19 +501,6 @@ class Editor(QMainWindow):
         item.setText(_translate("MainWindow", "maxei"))
         item = self.eiTable.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "tax"))
-        self.cppLabel.setText(_translate("MainWindow", "CPP"))
-        item = self.cppTable.verticalHeaderItem(0)
-        item.setText(_translate("MainWindow", "CPP"))
-        item = self.cppTable.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "max cpp contribution"))
-        item = self.cppTable.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "tax"))
-        item = self.cppTable.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "cpp excempt"))
-        self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.actionOpen.setText(_translate("MainWindow", "Open"))
-        self.actionSave.setText(_translate("MainWindow", "Save"))
-        self.actionExit.setText(_translate("MainWindow", "Exit"))
 
     def readData(self):
         data = {}
@@ -470,8 +527,7 @@ class Editor(QMainWindow):
         data['cpp']['maxcppContrib'] = [float(self.cppTable.item(0, c).text()) for c in range(2)]
         data['cpp']['cppExempt'] = float(self.cppTable.item(0, 2).text())
 
-        self.saveFile(data)
-
+        return data
 
     def fillData(self, taxyear):
         taxdata = self.loadData(taxyear)
@@ -522,11 +578,6 @@ class Editor(QMainWindow):
         item = QTableWidgetItem()
         item.setData(QtCore.Qt.EditRole, self.cppExempt)
         self.cppTable.setItem(0, 2, item)
-
-
-        # self.cppTable.setItem(0, 0, QTableWidgetItem(str(self.maxcppContrib[0])))
-        # self.cppTable.setItem(0, 1, QTableWidgetItem(str(self.maxcppContrib[1])))
-        # self.cppTable.setItem(0, 2, QTableWidgetItem(str(self.cppExempt)))
 
 
 if __name__ == '__main__':
