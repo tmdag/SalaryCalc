@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+'''
+Little Json file parsing module
+'''
 import json
 
 class jsonFile:
@@ -25,10 +30,6 @@ class jsonFile:
 			print("Error saving json file: {}".format(e))
 
 if __name__ == '__main__':
-	# Load and test data
+
 	data = jsonFile("../data/BCtax2017.json").load()
-	# print(data['province'].keys())
-	# print(data['province']['brk1'][1])
-	data = {'info': {'year': 2018, 'prov': 'BC'}, 'privince': {}, 'federal': {}, 'employeeInsurance': {}, 'cpp': {}}
 	print(type(data))
-	# jsonFile("test.json").save(data)
