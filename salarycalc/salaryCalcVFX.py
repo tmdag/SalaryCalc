@@ -8,7 +8,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QComboBox, QMainWindow, QFrame, QLabel, QDoubleSpinBox, QGridLayout, QWidget, QAction, qApp
 from PyQt5.QtGui import QIcon
 from modules import SimpleTax
-from modules import jsonFile
+from modules import JsonFile
 from taxEditor import Editor
 import pyqtgraph as pg
 
@@ -192,7 +192,7 @@ class MainUI(QMainWindow):
 
 
         # read json with data from specific Province/year
-        self.taxfile = jsonFile("data/{}.json".format(self.taxyear))
+        self.taxfile = JsonFile("data/{}.json".format(self.taxyear))
         taxdata = self.taxfile.load()
 
         # pass tax data to SimpleTax module

@@ -1,22 +1,30 @@
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QTableView, QMessageBox, QMainWindow, QApplication, QWidget, QVBoxLayout, qApp, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction, QFileDialog
-from modules import jsonFile
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+BC tax json file editor. Can be run as separate module or part of main script
+"""
+
 import os
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication, QWidget, QVBoxLayout, qApp, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction, QFileDialog
+from modules import JsonFile
 
 DATA_DIR = os.path.dirname(os.path.abspath(__file__)) + "/data"
 
 class Editor(QMainWindow):
-    def __init__ (self, taxfile=None, parent=None):
-        # super().__init__(parent) # Python => 3.0 method
-        super(Editor, self).__init__(parent) # Python  < 3.0 method
+    def __init__(self, taxfile=None, parent=None):
+        super().__init__(parent) # Python => 3.0 method
+        # super(Editor, self).__init__(parent) # Python  < 3.0 method
 
         # load and set stylesheet look
-        sshFile="modules/darkorange.stylesheet"
-        with open(sshFile,"r") as fh:
+        qtstyle_file = "modules/darkorange.stylesheet"
+        with open(qtstyle_file, "r") as fh:
             self.mystyle = fh.read()
             self.setStyleSheet(self.mystyle)
 
-        self.move(710,0)
+        # Move whole window to the right
+        self.move(710, 0)
 
         if(taxfile != None):
             self.taxyear = taxfile
@@ -26,31 +34,31 @@ class Editor(QMainWindow):
         self.initUI(self.taxyear)
 
     def openFile(self):
-        fname, _filter = QFileDialog.getOpenFileName(self, 'Open json file', DATA_DIR ,"Json file (*.json)")
+        fname, _filter = QFileDialog.getOpenFileName(self, 'Open json file', DATA_DIR, "Json file (*.json)")
         if(fname!=''):
-            jsonTaxFile = fname.split("/")[-1:][0]
-            self.updateTax(jsonTaxFile.split(".")[0])
+            json_tax_file = fname.split("/")[-1:][0]
+            self.updateTax(json_tax_file.split(".")[0])
 
     def saveFile(self):
         data = self.readData()
         fname = "{}tax{}.json".format(data['info']['prov'], data['info']['year'])
         sname = DATA_DIR + "/{}".format(fname)
         if os.path.isfile(sname):
-            msgBox = QMessageBox() ;
-            msgBox.setStyleSheet(self.mystyle)
-            buttonReply = msgBox.question(self, 'File Exists', "Do you want overwrite {}?".format(fname), QMessageBox.Yes | QMessageBox.Cancel, QMessageBox.Cancel)
-            if buttonReply == QMessageBox.Yes:
-                jsonFile(sname).save(data)
-            if buttonReply == QMessageBox.Cancel:
+            msg_box = QMessageBox() ;
+            msg_box.setStyleSheet(self.mystyle)
+            button_reply = msg_box.question(self, 'File Exists', "Do you want overwrite {}?".format(fname), QMessageBox.Yes | QMessageBox.Cancel, QMessageBox.Cancel)
+            if button_reply == QMessageBox.Yes:
+                JsonFile(sname).save(data)
+            if button_reply == QMessageBox.Cancel:
                 print('Cancel')
         else:
-            jsonFile(sname).save(data)
+            JsonFile(sname).save(data)
 
     def saveFileAs(self):
         data = self.readData()
-        sname, _filter  = QFileDialog.getSaveFileName(self, 'Save json File',DATA_DIR,"Json file (*.json)")
-        if(sname!=''):
-            jsonFile(sname).save(data)
+        sname, _filter = QFileDialog.getSaveFileName(self, 'Save json File', DATA_DIR, "Json file (*.json)")
+        if sname != '':
+            JsonFile(sname).save(data)
 
     def updateTax(self, taxyear):
         self.taxyear = taxyear
@@ -58,7 +66,7 @@ class Editor(QMainWindow):
         self.fillData(taxyear)
 
     def loadData(self, taxyear):
-        taxdata = jsonFile("data/{}.json".format(taxyear))
+        taxdata = JsonFile("data/{}.json".format(taxyear))
         return taxdata.load()
 
     def initMenu(self):
@@ -108,13 +116,8 @@ class Editor(QMainWindow):
         self.resize(400, 800)
 
         self.centralwidget = QWidget()
-        # self.centralwidget.setObjectName("centralwidget")
-
         self.verticalLayout_3 = QVBoxLayout(self.centralwidget)
-        # self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.splitter = QSplitter(self.centralwidget)
-        # self.splitter.setOrientation(QtCore.Qt.Horizontal)
-        # self.splitter.setObjectName("splitter")
 
         # --------------------- TOP MENU -------------------------
 
@@ -122,22 +125,11 @@ class Editor(QMainWindow):
 
         # ------------- Province ----------------
         self.ProvinceLabel = QLabel(self.splitter)
-        # sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.ProvinceLabel.sizePolicy().hasHeightForWidth())
-        # self.ProvinceLabel.setSizePolicy(sizePolicy)
-        # self.ProvinceLabel.setMaximumSize(QtCore.QSize(80, 30))
-        # self.ProvinceLabel.setObjectName("ProvinceLabel")
+
         self.provinceBox = QComboBox(self.splitter)
 
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.provinceBox.sizePolicy().hasHeightForWidth())
-        # self.provinceBox.setSizePolicy(sizePolicy)
-        # self.provinceBox.setMaximumSize(QtCore.QSize(200, 16777215))
-        # self.provinceBox.setObjectName("provinceBox")
+
         self.provinceBox.addItem("Alberta")
         self.provinceBox.setItemText(0, "AB")
 
@@ -172,71 +164,21 @@ class Editor(QMainWindow):
         self.provinceBox.setItemText(10, "SK")
 
         self.taxYearLabel = QLabel(self.splitter)
-        # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.taxYearLabel.sizePolicy().hasHeightForWidth())
-        # self.taxYearLabel.setSizePolicy(sizePolicy)
-        # self.taxYearLabel.setMaximumSize(QtCore.QSize(80, 16777215))
-        # self.taxYearLabel.setObjectName("taxYearLabel")
-        self.taxYearBox = QSpinBox(self.splitter)
-        # sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.taxYearBox.sizePolicy().hasHeightForWidth())
 
-        # self.taxYearBox.setSizePolicy(sizePolicy)
-        # self.taxYearBox.setMaximumSize(QtCore.QSize(150, 16777215))
-        # self.taxYearBox.setLayoutDirection(QtCore.Qt.LeftToRight)
-        # self.taxYearBox.setAutoFillBackground(False)
+        self.taxYearBox = QSpinBox(self.splitter)
         self.taxYearBox.setMinimum(1990)
         self.taxYearBox.setMaximum(2050)
-        # self.taxYearBox.setProperty("value", 2018)
         self.taxYearBox.setValue(2018)
-        # self.taxYearBox.setObjectName("taxYearBox")
-
-
-
-
 
         self.verticalLayout_3.addWidget(self.splitter)
         self.tabWidget = QTabWidget(self.centralwidget)
-        # self.tabWidget.setTabPosition(QTabWidget.North)
-        # self.tabWidget.setTabShape(QTabWidget.Rounded)
-        # self.tabWidget.setDocumentMode(False)
-        # self.tabWidget.setTabsClosable(False)
-        # self.tabWidget.setObjectName("tabWidget")
         self.ProvincialTab = QWidget()
-        # self.ProvincialTab.setObjectName("ProvincialTab")
         self.verticalLayout = QVBoxLayout(self.ProvincialTab)
-        # self.verticalLayout.setObjectName("verticalLayout")
         self.provLabel = QLabel(self.ProvincialTab)
-        # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.provLabel.sizePolicy().hasHeightForWidth())
-        # self.provLabel.setSizePolicy(sizePolicy)
-        # self.provLabel.setAlignment(QtCore.Qt.AlignCenter)
-        # self.provLabel.setObjectName("provLabel")
         self.verticalLayout.addWidget(self.provLabel)
 
-
-
-
         # ---------- PROVINCIAL TABLE ---------------
-        # self.provTable = QTableView(self.ProvincialTab)
         self.provTable = QTableWidget(self.ProvincialTab)
-        # self.provTable.setModel(QtCore.QAbstractTableModel)
-        # self.provTable.setEnabled(True)
-        # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.provTable.sizePolicy().hasHeightForWidth())
-        # self.provTable.setSizePolicy(sizePolicy)
-        # self.provTable.setAcceptDrops(True)
-        # self.provTable.setAutoFillBackground(False)
-        # self.provTable.setGridStyle(QtCore.Qt.SolidLine)
-        # self.provTable.setObjectName("provTable")
         self.provTable.setColumnCount(3)
         self.provTable.setRowCount(6)
 
@@ -258,35 +200,18 @@ class Editor(QMainWindow):
         self.provTable.horizontalHeaderItem(2).setText("tax Rate")
         self.provTable.horizontalHeaderItem(2).setFont(font)
 
-
-        # self.provTable.horizontalHeader().setVisible(True)
-        # self.provTable.horizontalHeader().setCascadingSectionResizes(False)
         self.provTable.horizontalHeader().setDefaultSectionSize(110)
         self.provTable.horizontalHeader().setStretchLastSection(True)
         self.provTable.verticalHeader().setVisible(False)
-        # self.provTable.verticalHeader().setStretchLastSection(False)
         self.verticalLayout.addWidget(self.provTable)
         self.provPerLabel = QLabel(self.ProvincialTab)
-        # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.provPerLabel.sizePolicy().hasHeightForWidth())
-        # self.provPerLabel.setSizePolicy(sizePolicy)
-        # self.provPerLabel.setAlignment(QtCore.Qt.AlignCenter)
-        # self.provPerLabel.setObjectName("provPerLabel")
+
         self.verticalLayout.addWidget(self.provPerLabel)
-
-
 
 
         # ----------- PROVINCE PERSONAL -------------------
 
         self.provPerTable = QTableWidget(self.ProvincialTab)
-        # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.provPerTable.sizePolicy().hasHeightForWidth())
-        # self.provPerTable.setSizePolicy(sizePolicy)
         self.provPerTable.setMaximumSize(QtCore.QSize(16777215, 60))
         self.provPerTable.setRowCount(1)
         self.provPerTable.setColumnCount(2)
@@ -322,13 +247,6 @@ class Editor(QMainWindow):
         # ----------- FEDERAL TABLE -----------------
 
         self.fedTable = QTableWidget(self.FederalTab)
-        # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.fedTable.sizePolicy().hasHeightForWidth())
-        # self.fedTable.setSizePolicy(sizePolicy)
-        # self.fedTable.setMinimumSize(QtCore.QSize(0, 0))
-        # self.fedTable.setObjectName("fedTable")
         self.fedTable.setColumnCount(3)
         self.fedTable.setRowCount(5)
 
@@ -364,8 +282,6 @@ class Editor(QMainWindow):
         self.fedPerLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.fedPerLabel.setObjectName("fedPerLabel")
         self.verticalLayout_2.addWidget(self.fedPerLabel)
-
-
 
 
         # ----------- FEDERAL PERSONAL TABLE -----------------
@@ -511,13 +427,13 @@ class Editor(QMainWindow):
         taxdata['info']['prov'] = self.provinceBox.currentText()
 
         taxdata['province'] = {}
-        for i in range(0,6):
+        for i in range(0, 6):
             taxdata['province']['brk{}'.format(i+1)] = [float(self.provTable.item(i, c).text()) for c in range(3)]
 
         taxdata['province']['PersonalAmount'] = [float(self.provPerTable.item(0, c).text()) for c in range(2)]
 
         taxdata['federal'] = {}
-        for i in range(0,5):
+        for i in range(0, 5):
             taxdata['federal']['brk{}'.format(i+1)] = [float(self.fedTable.item(i, c).text()) for c in range(3)]
 
         taxdata['federal']['PersonalAmount'] = [float(self.fedPerTable.item(0, c).text()) for c in range(2)]
@@ -542,9 +458,9 @@ class Editor(QMainWindow):
         if index >= 0:
             self.provinceBox.setCurrentIndex(index)
 
-        self.prov_brk = [taxdata['province']['brk{}'.format(x)] for x in range(1,7)]
+        self.prov_brk = [taxdata['province']['brk{}'.format(x)] for x in range(1, 7)]
         self.prov_PersonalAmount = taxdata['province']['PersonalAmount']
-        self.federal_brk = [taxdata['federal']['brk{}'.format(x)] for x in range(1,6)]
+        self.federal_brk = [taxdata['federal']['brk{}'.format(x)] for x in range(1, 6)]
         self.federal_PersonalAmount = taxdata['federal']['PersonalAmount']
         self.maxei = taxdata['employeeInsurance']['maxei']
         self.maxcppContrib = taxdata['cpp']['maxcppContrib']
@@ -591,7 +507,7 @@ class Editor(QMainWindow):
 
 
 if __name__ == '__main__':
-    from modules import jsonFile
+    # from modules import JsonFile
     import sys
 
     app = QApplication(sys.argv)

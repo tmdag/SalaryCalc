@@ -26,6 +26,7 @@ class SimpleTax:
         self.cpp_exempt = taxdata['cpp']['cppExempt']
 
     def clamp(self, x, cmin, cmax):
+        ''' clamp data '''
         clamped = 0 if x < cmin else max(cmin, min(x, cmax))
         return clamped
 
@@ -36,11 +37,13 @@ class SimpleTax:
         return cpp
 
     def emplymentInsurance(self, maxei):
+        ''' employment insurance calculation '''
         eiContrib = min(maxei[0], self.annual)
         ei = (eiContrib*(maxei[1]*0.01))
         return ei
 
     def bracketTax(self, personal, bracket1, bracket2, bracket3, bracket4, bracket5, bracket6=None):
+        ''' general bracket calculation for federal and provincial tax '''
         ernBrk1 = max(0, self.clamp(self.annual, bracket1[0], bracket1[1]))
         ernBrk1Due = ernBrk1*(bracket1[2]*0.01)
         ernBrk2 = max(0, self.clamp(self.annual, bracket2[0], bracket2[1])-ernBrk1)
@@ -52,13 +55,14 @@ class SimpleTax:
         ernBrk5 = max(0, self.clamp(self.annual, bracket5[0], bracket5[1])-ernBrk4-ernBrk3-ernBrk2-ernBrk1)
         ernBrk5Due = ernBrk5*(bracket5[2]*0.01)
         bracketTaxDue = (ernBrk1Due+ernBrk2Due+ernBrk3Due+ernBrk4Due+ernBrk5Due)-(personal[0]*(personal[1]*0.01))
-        if(bracket6!=None):
+        if bracket6 != None:
             ernBrk6 = max(0, self.clamp(self.annual, bracket6[0], bracket6[1])-ernBrk5-ernBrk4-ernBrk3-ernBrk2-ernBrk1)
             ernBrk6Due = ernBrk6*(bracket6[2]*0.01)
             bracketTaxDue = (ernBrk1Due+ernBrk2Due+ernBrk3Due+ernBrk4Due+ernBrk5Due+ernBrk6Due)-(personal[0]*(personal[1]*0.01))
         return bracketTaxDue
 
     def afterTax(self):
+        ''' Net amount '''
         after = self.annual \
         - self.canadaPensionPlan(self.maxcpp_contrib, self.cpp_exempt) \
         - self.emplymentInsurance(self.maxei) \
@@ -67,15 +71,14 @@ class SimpleTax:
         return after
 
     def taxDue(self):
+        ''' tax to pay method '''
         due = self.annual - self.afterTax()
         return due
 
-###################################
-#  TESTS
 if __name__ == '__main__':
-    from jsonParser import jsonFile
+    from jsonParser import JsonFile
 
-    TAXFILE = jsonFile("../data/BCtax2018.json")
+    TAXFILE = JsonFile("../data/BCtax2018.json")
     TAXDATA = TAXFILE.load()
 
     TEST_ANN = 55*2080
