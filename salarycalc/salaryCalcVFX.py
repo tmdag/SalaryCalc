@@ -35,7 +35,7 @@ class Form(QMainWindow):
     def updateTax(self, taxyear):
         self.taxyear = taxyear
         self.setWindowTitle("VFX Salary Conversion {}".format(taxyear))
-        self.updateUi(taxyear)
+        self.updateUi()
 
     def initUI(self):
         exitAct = QAction(QIcon('images/exit.png'), '&Exit', self)        
@@ -153,9 +153,9 @@ class Form(QMainWindow):
         self.sFreq.currentIndexChanged.connect(self.updateUi)
         self.setWindowTitle("VFX Salary Conversion {}".format(self.taxyear))
 
-        self.updateUi("BCtax2018")
+        self.updateUi()
 
-    def updateUi(self, taxyear):
+    def updateUi(self):
         _translate = QtCore.QCoreApplication.translate #copied from QT Designer
         senderNode = self.sender() # Check which spinbox requested update
             
@@ -185,7 +185,7 @@ class Form(QMainWindow):
 
 
         # read json with data from specific Province/year
-        self.taxfile = jsonFile("data/{}.json".format(taxyear))
+        self.taxfile = jsonFile("data/{}.json".format(self.taxyear))
         taxdata = self.taxfile.load()
 
         # pass tax data to SimpleTax module

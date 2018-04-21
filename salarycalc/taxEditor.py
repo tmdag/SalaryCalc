@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication, QWidget, QVBoxLayout, qApp, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction, QFileDialog
+from PyQt5.QtWidgets import QTableView, QMessageBox, QMainWindow, QApplication, QWidget, QVBoxLayout, qApp, QSplitter, QLabel, QSizePolicy, QComboBox, QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QMenuBar, QMenu, QStatusBar, QAction, QFileDialog
 from modules import jsonFile
 import os
 
@@ -21,7 +21,7 @@ class Editor(QMainWindow):
         if(taxfile != None):
             self.taxyear = taxfile
         else:
-            self.taxyear = "BCtax2017"
+            self.taxyear = "BCtax2018"
 
         self.initUI(self.taxyear)
 
@@ -224,8 +224,9 @@ class Editor(QMainWindow):
 
 
         # ---------- PROVINCIAL TABLE ---------------
-
+        # self.provTable = QTableView(self.ProvincialTab)
         self.provTable = QTableWidget(self.ProvincialTab)
+        # self.provTable.setModel(QtCore.QAbstractTableModel)
         # self.provTable.setEnabled(True)
         # sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         # sizePolicy.setHorizontalStretch(0)
@@ -503,34 +504,43 @@ class Editor(QMainWindow):
         item.setText(_translate("MainWindow", "tax"))
 
     def readData(self):
-        data = {}
+        taxdata = {}
 
-        data['info'] = {}
-        data['info']['year'] = self.taxYearBox.value()
-        data['info']['prov'] = self.provinceBox.currentText()
+        taxdata['info'] = {}
+        taxdata['info']['year'] = self.taxYearBox.value()
+        taxdata['info']['prov'] = self.provinceBox.currentText()
 
-        data['province'] = {}
+        taxdata['province'] = {}
         for i in range(0,6):
-            data['province']['brk{}'.format(i+1)] = [float(self.provTable.item(i, c).text()) for c in range(3)]
+            taxdata['province']['brk{}'.format(i+1)] = [float(self.provTable.item(i, c).text()) for c in range(3)]
 
-        data['province']['PersonalAmount'] = [float(self.provPerTable.item(0, c).text()) for c in range(2)]
+        taxdata['province']['PersonalAmount'] = [float(self.provPerTable.item(0, c).text()) for c in range(2)]
 
-        data['federal'] = {}
+        taxdata['federal'] = {}
         for i in range(0,5):
-            data['federal']['brk{}'.format(i+1)] = [float(self.fedTable.item(i, c).text()) for c in range(3)]
+            taxdata['federal']['brk{}'.format(i+1)] = [float(self.fedTable.item(i, c).text()) for c in range(3)]
 
-        data['federal']['PersonalAmount'] = [float(self.fedPerTable.item(0, c).text()) for c in range(2)]
-        data['employeeInsurance'] = {}
-        data['employeeInsurance']['maxei'] = [float(self.eiTable.item(0, c).text()) for c in range(2)]
+        taxdata['federal']['PersonalAmount'] = [float(self.fedPerTable.item(0, c).text()) for c in range(2)]
+        taxdata['employeeInsurance'] = {}
+        taxdata['employeeInsurance']['maxei'] = [float(self.eiTable.item(0, c).text()) for c in range(2)]
 
-        data['cpp'] = {}
-        data['cpp']['maxcppContrib'] = [float(self.cppTable.item(0, c).text()) for c in range(2)]
-        data['cpp']['cppExempt'] = float(self.cppTable.item(0, 2).text())
+        taxdata['cpp'] = {}
+        taxdata['cpp']['maxcppContrib'] = [float(self.cppTable.item(0, c).text()) for c in range(2)]
+        taxdata['cpp']['cppExempt'] = float(self.cppTable.item(0, 2).text())
 
-        return data
+        return taxdata
 
     def fillData(self, taxyear):
         taxdata = self.loadData(taxyear)
+
+        year = taxdata['info']['year']
+        print(year)
+        self.taxYearBox.setValue(year)
+
+        prov = taxdata['info']['prov']
+        index = self.provinceBox.findText(prov, QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.provinceBox.setCurrentIndex(index)
 
         self.prov_brk = [taxdata['province']['brk{}'.format(x)] for x in range(1,7)]
         self.prov_PersonalAmount = taxdata['province']['PersonalAmount']
