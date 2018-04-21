@@ -1,6 +1,8 @@
 # salaryCalc
 Small tool to calculate Canada, BC tax based on hourly/annual rate.
 
+![screenshot](https://github.com/tmdag/salaryCalc/blob/master/salarycalc/images/screeen.jpg)
+
 ## Requirements:
 This is Python3 code style. It will not work in older Python versions.
 Code is using few 3rd party modules like:
@@ -29,4 +31,3 @@ or install packages to run code manually
 ```
 pip3 install PyPDF2, pyqtgraph, numpy, PyQT5
 ```
-![screenshot](https://github.com/tmdag/salaryCalc/blob/master/images/screen.jpg)
