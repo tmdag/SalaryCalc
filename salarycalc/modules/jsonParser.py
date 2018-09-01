@@ -10,7 +10,7 @@ class JsonFile:
     def __init__(self, file):
         self.file = file
         if self.file == '':
-            raise Exception('no file name provided')
+            raise Exception('no file name provided') 
 
     def load(self):
         ''' load json file '''
