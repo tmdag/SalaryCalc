@@ -6,7 +6,7 @@ Small tool to calculate Canada, BC tax based on hourly/annual rate.
 ## Requirements:
 This is Python3 code style. It will not work in older Python versions.
 Code is using few 3rd party modules like:
-- pyqtgraph
+- pyqtgraph (https://github.com/pyqtgraph/pyqtgraph)
 - PyQT5
 
 ## Usage:
