@@ -226,19 +226,19 @@ class MainUI(QMainWindow):
         # END GRAPH ----------------------------------------------------------------------
 
         if hr <= 20:
-            comment = "runner salary"
+            comment = "A salary"
         elif hr > 20 and hr <= 30:
-            comment = "Coordinator"
+            comment = "B salary"
         elif hr > 30 and hr <= 40:
-            comment = "Junior Artist salary"
+            comment = "C salary"
         elif hr > 40 and hr <= 50:
-            comment = "Mid Artist salary"
+            comment = "D salary"
         elif hr > 50 and hr <= 65:
-            comment = "Senior Artist salary"
+            comment = "E salary"
         elif hr > 65 and hr <= 85:
-            comment = "Supervisor salary"
+            comment = "F salary"
         elif hr > 85:
-            comment = "Mid at Weta or senior Sup in Canada"
+            comment = "G salary"
         self.commentary.setText("{}".format(comment))
 
 if __name__ == '__main__':
